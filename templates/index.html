@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title></title>
+  <meta name="description" content="" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+  <style>
+    body {
+      background-color: gainsboro;
+      background-image: url(../static/images/app.jpg);
+      background-repeat: no-repeat;
+      background-size: cover;
+    } 
+
+    .design {
+      text-align: center;
+    }
+
+    h1 {
+      background-color: aliceblue;
+      padding: 20px;
+      margin: 0px;
+      font-size: 40px;
+    }
+
+    .fa {
+      font-size: 20px;
+    }
+
+    p {
+      font-size: 30px;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    .input {
+      height: 50px;
+      width: 600px;
+      font-size: 20px;
+      text-align: center;
+    }
+
+    .update {
+      font-size: 40px;
+    }
+    h2 {
+      font-size: 30px;
+    }
+    .updateForm {
+      display: none;
+    }
+    .edit-btn {
+      color: green;
+      margin: 0 10px;
+    }
+
+    .delete-btn{
+      color: red;
+      margin:0 10px ;
+    }
+    .editing {
+      background-color: lightyellow; 
+      display: inline-block;
+      padding: 10px;
+      min-width: 200px; 
+    }
+  </style>
+</head>
+<body>
+  <div class="design">
+    <h1>Welcome to my Todo app</h1>
+    <p>Todo application </p>
+
+    <form class="myForm" action="{{ url_for('create_task') }}" method="POST">
+      <div class="inputBox">
+        <input type="text" name="task" placeholder="Add new task" required class="input">
+        <button type="submit"><i class="fa fa-plus-square" aria-hidden="true"></i>Add task</a></button>
+      </div>
+    </form>
+
+    <div>
+      <ul id="tasksList">
+        {% for task in tasks %}
+        <li>
+          <span class="task-text" contenteditable="true" data-task-id="{{ loop.index0 }}">{{ task }}</span>
+          <form class="edit-form" action="{{ url_for('update_task', index=loop.index0) }}" method="POST" style="display: none;">
+            <input type="hidden" name="_method" value="PATCH">
+            <input type="hidden" name="updated_task" class="updated-task">
+          </form>
+          <a type="button" class="edit-btn"><i class="fa fa-pencil-square-o" aria-hidden="true"></i> Edit</a>
+          <a type="button" class="delete-btn" href="{{ url_for('delete_task', index=loop.index0) }}"><i class="fa fa-times" aria-hidden="true"></i> Delete</a>
+        </li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+
+  <script>
+    const taskTexts = document.querySelectorAll('.task-text');
+    const editButtons = document.querySelectorAll('.edit-btn');
+
+    taskTexts.forEach(taskText => {
+      taskText.addEventListener('input', function() {
+        const taskId = taskText.getAttribute('data-task-id');
+        const editForm = document.querySelector(`.edit-form[data-task-id="${taskId}"]`);
+        const updatedTaskInput = editForm.querySelector('.updated-task');
+        updatedTaskInput.value = taskText.textContent.trim();
+        editForm.submit();
+      });
+    });
+
+    editButtons.forEach((editButton, index) => {
+      editButton.addEventListener('click', () => {
+        const editForm = document.querySelectorAll('.edit-form')[index];
+        if (editForm.style.display === 'none') {
+          editForm.style.display = 'block';
+          const taskText = document.querySelectorAll('.task-text')[index];
+          taskText.classList.add('editing'); // Adding 'editing' class for background color
+        } else {
+          editForm.style.display = 'none';
+          const taskText = document.querySelectorAll('.task-text')[index];
+          taskText.classList.remove('editing'); // Removing 'editing' class when editing is done
+        }
+      });
+    });
+  </script>
+</body>
+</html>
